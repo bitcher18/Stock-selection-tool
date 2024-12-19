@@ -22,6 +22,7 @@ This Python tool allows users to analyze historical closing prices of Malaysian 
 # Install Dependencies:
 
 Ensure you have Python installed, then install the required libraries:
+   ```bash
 pip install pandas yfinance
 
 # Run the Program
@@ -29,7 +30,7 @@ python main.py
 
 
 # Project Structure
-bash
+   ```bash
 stock-selection-tool/
 │-- main.py           # Handles user interactions
 │-- functions.py      # Contains core functions (registration, authentication, data fetching, analysis)
