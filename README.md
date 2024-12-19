@@ -27,7 +27,9 @@ pip install pandas yfinance
 # Run the Program
 python main.py
 
+
 # Project Structure
+bash
 stock-selection-tool/
 │-- main.py           # Handles user interactions
 │-- functions.py      # Contains core functions (registration, authentication, data fetching, analysis)
@@ -35,5 +37,6 @@ stock-selection-tool/
 │-- user_data.csv     # Stores analysis results
 │-- README.md         # Project documentation
 └-- .gitignore        # Specifies files to exclude from version control
+
 
 
