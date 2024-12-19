@@ -19,4 +19,21 @@ This Python tool allows users to analyze historical closing prices of Malaysian 
    ```bash
    git clone https://github.com/bitcher18/Stock-selection-tool/edit/main/README.md
    cd stock-selection-tool
+# Install Dependencies:
+
+Ensure you have Python installed, then install the required libraries:
+pip install pandas yfinance
+
+# Run the Program
+python main.py
+
+# Project Structure
+stock-selection-tool/
+│-- main.py           # Handles user interactions
+│-- functions.py      # Contains core functions (registration, authentication, data fetching, analysis)
+│-- credentials.csv   # Stores user credentials (hashed passwords)
+│-- user_data.csv     # Stores analysis results
+│-- README.md         # Project documentation
+└-- .gitignore        # Specifies files to exclude from version control
+
 
