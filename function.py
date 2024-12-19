@@ -1,73 +1,72 @@
-import pandas as pd
 import yfinance as yf
+import pandas as pd
+import os
+import csv
+def register_user(email, password, users_file):
+    # Check if users file exists and read it
+    users = {}
+    if os.path.exists(users_file):
+        with open(users_file, mode="r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                users[row[0]] = row[1]
+    
+    # Register new user if not already registered
+    if email not in users:
+        users[email] = password
+        with open(users_file, mode="a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow([email, password])
+        return True
+    else:
+        print("This email is already registered.")
+        return False
 
-# 1. Function to register a new user
-def register_user(email, password):
-    try:
-        # Create a DataFrame with the new user data
-        new_user = pd.DataFrame([[email, password]], columns=["Email", "Password"])
-        # Append to 'users.csv' (create it if it doesn't exist)
-        new_user.to_csv("users.csv", mode='a', header=not pd.io.common.file_exists("users.csv"), index=False)
-        return "Registration successful!"
-    except Exception as e:
-        return f"Error during registration: {e}"
 
-# 2. Function to authenticate an existing user
-def authenticate_user(email, password):
-    try:
-        # Read 'users.csv' into a DataFrame
-        users = pd.read_csv("users.csv")
-        # Check if the email and password match any row
-        if ((users["Email"] == email) & (users["Password"] == password)).any():
-            return True  # Successful login
-        return False  # No match found
-    except FileNotFoundError:
-        return False  # If the file doesn't exist, return False
+def authenticate_user(email, password, users_file):
+    """Authenticate a user based on stored credentials."""
+    if os.path.exists(users_file):
+        with open(users_file, mode="r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0] == email and row[1] == password:
+                    return True
+    return False
 
-# 3. Function to fetch closing prices for a stock
 def get_closing_prices(ticker, start_date, end_date):
+    """Fetch historical closing prices for the given stock ticker and period using YFinance."""
     try:
-        # Fetch stock data using yfinance
         stock_data = yf.download(ticker, start=start_date, end=end_date)
         return stock_data['Close']
     except Exception as e:
-        return f"Error fetching data: {e}"
+        print(f"Error fetching data: {e}")
+        return pd.Series()
 
-# 4. Function to analyze closing prices
 def analyze_closing_prices(data):
-    if data.empty:
-        return "No data available for analysis."
-    
-    # Perform basic analysis
-    avg_price = data.mean()
-    percentage_change = ((data.iloc[-1] - data.iloc[0]) / data.iloc[0]) * 100
-    highest_price = data.max()
-    lowest_price = data.min()
-
-    return {
-        "Average Price": avg_price,
-        "Percentage Change": percentage_change,
-        "Highest Price": highest_price,
-        "Lowest Price": lowest_price
+    """Perform basic analysis on the closing prices."""
+    analysis = {
+        "Average Closing Price": round(float(data.mean()), 2),
+        "Percentage Change": round(float(((data.iloc[-1] - data.iloc[0]) / data.iloc[0]) * 100), 2),
+        "Highest Closing Price": round(float(data.max()), 2),
+        "Lowest Closing Price": round(float(data.min()), 2)
     }
+    return analysis
 
-# 5. Function to save analysis results to a CSV file
-def save_to_csv(data, filename="user_data.csv"):
-    try:
-        # Convert the data dictionary to a DataFrame and append to CSV
-        df = pd.DataFrame([data])
-        df.to_csv(filename, mode='a', header=not pd.io.common.file_exists(filename), index=False)
-        return "Data saved successfully!"
-    except Exception as e:
-        return f"Error saving data: {e}"
+def save_to_csv(data, filename):
+    """Save user interactions to a CSV file."""
+    file_exists = os.path.exists(filename)
+    with open(filename, mode="a", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=data.keys())
+        if not file_exists:
+            writer.writeheader()
+        # Convert all values in data to strings to ensure compatibility
+        writer.writerow({key: str(value) for key, value in data.items()})
 
-# 6. Function to read saved data from a CSV file
-def read_from_csv(filename="user_data.csv"):
-    try:
-        # Read the CSV file into a DataFrame
+def read_from_csv(filename):
+    """Retrieve and display saved data from the CSV file."""
+    if os.path.exists(filename):
         data = pd.read_csv(filename)
         return data
-    except FileNotFoundError:
-        return "No data found."
-
-    
+    else:
+        print("No data found.")
+        return pd.DataFrame()
